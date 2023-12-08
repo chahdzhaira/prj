@@ -11,13 +11,32 @@ export class FoyerService {
   private apiUrl = environment.aUrl;
   constructor(private _http: HttpClient) {}
 
-  getFoyers(): Observable<Foyer[]> {
-    const url = `${this.apiUrl}/afficherfoyers`; // Assurez-vous que l'URL est correcte
+  addFoyer(foyer: any): Observable<any> {
+    return this._http.post(`${this.apiUrl}/foyers`, foyer);
+  }
 
-    return this._http.get<Foyer[]>(url);
+  getAllFoyers(): Observable<any[]> {
+    return this._http.get<any[]>(`${this.apiUrl}/afficherfoyers`);
   }
-  findFoyersByUniversiteIsNull():Observable<any[]>{
-    return this._http.get<any[]>(`${this.apiUrl}/findFoyersByUniversiteIsNull`);
+
+  addfoyer(foyer: any): Observable<any> {
+    return this._http.post<any>(`${this.apiUrl}/ajouterfoyer`, foyer);
   }
-  
+
+  updatefoyer(foyer: any): Observable<any> {
+    return this._http.put<any>(`${this.apiUrl}/modifierfoyer`, foyer);
+  }
+
+  getfoyerById(idfoyer: number): Observable<any> {
+    return this._http.get<any>(`${this.apiUrl}/afficherfoyer/${idfoyer}`);
+  }
+
+  removefoyer(idfoyer: number): Observable<void> {
+    return this._http.delete<void>(`${this.apiUrl}/removefoyer/${idfoyer}`);
+  }
+  findFoyersByBlocsIsNull():Observable<any[]>{
+    return this._http.get<any[]>("http://localhost:8081/foyer/findFoyersByBlocsIsNull");
+  }
 }
+  
+

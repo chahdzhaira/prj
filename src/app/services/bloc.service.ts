@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -29,12 +29,27 @@ export class BlocService {
     return this._http.delete<void>(`${this.apiUrl}/removeBloc/${idBloc}`);
   }
 
-  affecterBlocAFoyer(nomBloc: string, nomFoyer: string): Observable<any> {
-    const url = `${this.apiUrl}/affecterblocafoyer/${nomBloc}/${nomFoyer}`;
-    return this._http.put(url, {});
-  }
+  
   getBlocIdByNom(nomBloc: string): Observable<number> {
     const url = `${this.apiUrl}/getBlocIdByNom/${nomBloc}`;
     return this._http.get<number>(url);
+  }
+
+  affecterBlocAFoyer(
+    idFoyer: number,
+    nomBloc: string
+  ): Observable<any> {
+    const headers = new HttpHeaders({ "Content-Type": "application/json" });
+
+    let httpParams = new HttpParams();
+    httpParams = httpParams.set("idFoyer", idFoyer.toString());
+    httpParams = httpParams.set("nomBloc", nomBloc);
+
+    const params = { params: httpParams };
+
+    return this._http.post(`${this.apiUrl}/affecter-foyer`, null, {
+      headers: headers,
+      params: httpParams,
+    });
   }
 }

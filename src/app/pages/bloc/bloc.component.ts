@@ -1,7 +1,10 @@
 import { Component,  Input,Output, OnInit, EventEmitter} from '@angular/core';
 import { Router } from '@angular/router';
 import { Bloc } from 'src/app/models/bloc';
+import { Foyer } from 'src/app/models/foyer';
 import { BlocService } from 'src/app/services/bloc.service';
+import { FoyerService } from 'src/app/services/foyer.service';
+import { PdfBlocService } from 'src/app/services/pdf-bloc.service';
 
 @Component({
   selector: 'app-bloc',
@@ -19,11 +22,18 @@ export class BlocComponent implements OnInit {
   @Output() blocRemoved: EventEmitter<number> = new EventEmitter<number>();
   show:boolean=true;
   buttonStates: { [key: number]: boolean } = {};
+  foyerList: any ; 
+  pdfService: any;
+
   
-  constructor(private blocService: BlocService, private router: Router) {}
+  constructor(private blocService: BlocService, private router: Router ,private PdfBlocService :PdfBlocService , private foyerService: FoyerService ) {}
 
   ngOnInit() {
     this.loadAllBlocs();
+    this.foyerService.findFoyersByBlocsIsNull().subscribe((data) => {
+      this.foyerList = data;
+    });
+
   }
   deleteBloc(idBloc: number) {
     if(confirm('Êtes-vous sûr de vouloir supprimer ce bloc ?')){
@@ -80,7 +90,46 @@ export class BlocComponent implements OnInit {
     this.bloc = bloc;
   }
 
-  
+  affecterFoyerAUniversite(idFoyer: number, nomBloc: string): void {
+    this.blocService.affecterBlocAFoyer(idFoyer, nomBloc)
+      .subscribe(
+        (bloc: any) => {
+          // Traitement réussi, mettez à jour votre interface utilisateur si nécessaire
+          console.log("Affectation réussie :", bloc);
+        },
+        (error) => {
+          // Gérez les erreurs ici
+          console.error("Erreur lors de l'affectation :", error);
+        }
+      );
+  }
 
+  onOptionSelectionChange(event, bloc) {
+    const idSelectedFoyer = event.target.value;
+    console.log(idSelectedFoyer);
   
+    this.foyerList = this.foyerList.filter(foyer => foyer.idFoyer != idSelectedFoyer);
+  
+    this.blocService.affecterBlocAFoyer(idSelectedFoyer, bloc.nomBloc)
+      .subscribe(
+        (data) => {
+          console.log(data);
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+  }
+
+  generatePDF() {
+    this.PdfBlocService.generatePDF().subscribe(
+      (pdfBlob: Blob) => {
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        window.open(pdfUrl, "_blank");
+      },
+      (error) => {
+        console.error("Erreur lors de la génération du PDF", error);
+      }
+    );
+  }
 }
